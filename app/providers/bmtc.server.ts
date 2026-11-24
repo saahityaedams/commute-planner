@@ -6,9 +6,10 @@ import type { Stop } from "~/lib/stops";
 const SHOW_WALK_OVER_M = 150;
 /**
  * BMTC doesn't flag AC per leg (serviceTypeId is always 0); Vajra ("V-500CA", "V-285M"…) and Vayu Vajra
- * airport ("KIA-8"…) routes are the AC fleet.
+ * airport ("KIA-8"…) routes are the AC fleet, plus any route listed in `acRoutes`.
  */
-const AC_ROUTE = /^(V-|KIA-)/i;
+const AC_PREFIX = /^(V-|KIA-)/i;
+const norm = (r: string) => r.toUpperCase().replace(/\s+/g, "");
 
 export const busNode = (s: Stop): Node => ({ mode: "bus", ref: String(s.id), name: s.name, lat: s.lat, lon: s.lon });
 const toStop = (n: Node): Stop => ({ id: Number(n.ref), name: n.name, lat: n.lat, lon: n.lon });
@@ -20,8 +21,10 @@ const toStop = (n: Node): Stop => ({ id: Number(n.ref), name: n.name, lat: n.lat
 /** Reuse one planner answer for every request in the same window (it lists all departures after the window start). */
 const WINDOW_MS = 10 * 60_000;
 
-export const createBmtcProvider = (): Provider => {
+export const createBmtcProvider = ({ acRoutes = [] }: { acRoutes?: string[] } = {}): Provider => {
   const gate = createGate();
+  const acList = new Set(acRoutes.map(norm));
+  const isAc = (route: string) => AC_PREFIX.test(route) || acList.has(norm(route));
   const windows = new Map<string, ReturnType<typeof planBus>>();
   return {
     id: "bmtc",
@@ -44,7 +47,7 @@ export const createBmtcProvider = (): Provider => {
         for (const l of j.legs)
           legs.push({
             mode: "bus", label: l.route, from: l.from, to: l.to, dep: l.board, arr: l.alight, fare: l.fare, live: l.live,
-            detail: l.busNo ?? undefined, tags: AC_ROUTE.test(l.route) ? ["ac"] : [], path: l.path, meters: l.meters ?? undefined,
+            detail: l.busNo ?? undefined, tags: isAc(l.route) ? ["ac"] : [], path: l.path, meters: l.meters ?? undefined,
           });
         if (j.walkFromAlightM > SHOW_WALK_OVER_M)
           legs.push({ mode: "walk", label: "Walk", from: last.to, to: to.name, dep: last.alight, arr: j.arrive, fare: 0, meters: j.walkFromAlightM, path: [last.path[last.path.length - 1], [to.lat, to.lon]] });

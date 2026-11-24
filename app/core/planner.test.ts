@@ -175,3 +175,48 @@ describe("withPointMode", () => {
     expect(withPointMode([a], "auto")[0].nodes).toHaveLength(2);
   });
 });
+
+import { distrustCorrections, fewerChanges } from "./preferences";
+
+describe("three-segment chains", () => {
+  // H (bus only) → M (bus+train) → S (train+bus) → D (bus only). Bus→train→bus needs 3 segments.
+  const H: Place = { id: "H", name: "H", nodes: [node("bus", "H-b", 13.0)] };
+  const M: Place = { id: "M", name: "M", nodes: [node("bus", "M-b", 12.98), node("train", "M-t", 12.98)] };
+  const S: Place = { id: "S", name: "S", nodes: [node("train", "S-t", 12.93), node("bus", "S-b", 12.93)] };
+  const D: Place = { id: "D", name: "D", nodes: [node("bus", "D-b", 12.92)] }; // ~1.1 km from S, ~9 km from M
+  const bus3 = fake("bus", "bus", { "H-b>M-b": { mins: 15, fare: 20 }, "S-b>D-b": { mins: 6, fare: 6 }, "H-b>D-b": { mins: 120, fare: 30 } });
+  const train3 = fake("train", "train", { "M-t>S-t": { mins: 20, fare: 60 } }, 5);
+  const base = { providers: [train3, bus3], transferPlaces: [M, S], criteria: [fastest] };
+
+  it("finds bus → train → bus when three segments are allowed", async () => {
+    const two = await plan(H, D, T0, { ...base, maxSegments: 2 });
+    expect(two.best.fastest?.kind).toBe("bus");
+    const three = await plan(H, D, T0, { ...base, maxSegments: 3 });
+    expect(three.best.fastest?.kind).toBe("bus → train → bus");
+  });
+
+  it("only allows the third segment as a short hop near the destination", async () => {
+    const near = await plan(H, D, T0, { ...base, maxSegments: 3, extraSegmentRadiusM: 2000 });
+    expect(near.best.fastest?.kind).toBe("bus → train → bus");
+    const tooFar = await plan(H, D, T0, { ...base, maxSegments: 3, extraSegmentRadiusM: 500 });
+    expect(tooFar.best.fastest?.kind).toBe("bus");
+  });
+});
+
+describe("preferences", () => {
+  const leg = (mode: string, dep: number, mins: number, deltaMin = 0) => ({
+    mode, label: mode, from: "a", to: "b", dep: T0 + dep * MIN, arr: T0 + (dep + mins) * MIN, fare: 10,
+    ...(deltaMin ? { adjusted: { reason: "traffic", deltaMs: deltaMin * MIN } } : {}),
+  });
+
+  it("charges a fixed hassle per change", () => {
+    const p = fewerChanges(5 * MIN);
+    expect(p.penaltyMs(itinerary([leg("bus", 0, 30)]))).toBe(0);
+    expect(p.penaltyMs(itinerary([leg("bus", 0, 10), leg("walk", 10, 3), leg("metro", 15, 10)]))).toBe(5 * MIN);
+  });
+
+  it("weights corrected minutes extra, and only those", () => {
+    const p = distrustCorrections(0.5);
+    expect(p.penaltyMs(itinerary([leg("bus", 0, 60, 20), leg("metro", 60, 20)]))).toBe(10 * MIN);
+  });
+});

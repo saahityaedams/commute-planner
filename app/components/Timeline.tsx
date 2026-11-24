@@ -1,6 +1,7 @@
 import type { Itinerary, Leg } from "~/core/types";
 import { fmtTime, mins } from "~/lib/time";
-import { legColor, legTitle, modeIcon } from "./legStyle";
+import { legColor, legTextColor, legTitle } from "./legStyle";
+import { ModeIcon } from "./ModeIcon";
 
 /** Road metres → walking minutes at 4.5 km/h. */
 const walkMinutes = (m: number) => m / 75;
@@ -18,7 +19,7 @@ export function Timeline({ it, startName, endName }: { it: Itinerary; startName:
   const first = it.legs[0];
   const boardLater = first && first.mode !== "walk" && firstDep - it.leave >= 60_000;
   const startNote = boardLater
-    ? `leave · ${first.mode === "auto" ? "auto picks you up" : `board ${legTitle(first)}`} ~${fmtTime(firstDep)}`
+    ? `leave, ${first.mode === "auto" ? "auto picks you up" : `board ${legTitle(first)}`} ~${fmtTime(firstDep)}`
     : "leave";
   rows.push(<Stop key="start" time={it.leave} name={startName} note={startNote} strong />);
 
@@ -32,7 +33,7 @@ export function Timeline({ it, startName, endName }: { it: Itinerary; startName:
           key={`s${i}`}
           time={prev.arr}
           name={l.from}
-          note={wait >= 60_000 ? `wait ${mins(wait)} min · board ${fmtTime(l.dep)}` : undefined}
+          note={wait >= 60_000 ? `wait ${mins(wait)} min, board ${fmtTime(l.dep)}` : undefined}
         />,
       );
     }
@@ -40,19 +41,19 @@ export function Timeline({ it, startName, endName }: { it: Itinerary; startName:
   });
 
   rows.push(<Stop key="end" time={it.arrive} name={endName} note="arrive" strong />);
-  return <ol className="mt-3">{rows}</ol>;
+  return <ol className="mt-4">{rows}</ol>;
 }
 
 function Stop({ time, name, note, strong }: { time: number; name: string; note?: string; strong?: boolean }) {
   return (
     <li className="flex items-center gap-3">
-      <span className={`w-11 shrink-0 text-right text-sm tabular-nums ${strong ? "font-semibold" : "text-zinc-600 dark:text-zinc-400"}`}>{fmtTime(time)}</span>
+      <span className={`w-11 shrink-0 text-right text-sm tabular-nums ${strong ? "font-bold" : "text-muted"}`}>{fmtTime(time)}</span>
       <span className="relative flex w-4 shrink-0 justify-center">
-        <span className={`h-3 w-3 rounded-full border-2 border-zinc-900 dark:border-zinc-100 ${strong ? "bg-zinc-900 dark:bg-zinc-100" : "bg-white dark:bg-zinc-950"}`} />
+        <span className={`h-3 w-3 rounded-full border-2 border-ink ${strong ? "bg-ink" : "bg-surface"}`} />
       </span>
       <span className="min-w-0 text-sm">
-        <span className={strong ? "font-semibold" : "font-medium"}>{name}</span>
-        {note && <span className="ml-2 text-xs text-zinc-500">{note}</span>}
+        <span className={strong ? "font-bold" : ""}>{name}</span>
+        {note && <span className="ml-2 text-xs text-muted">{note}</span>}
       </span>
     </li>
   );
@@ -73,33 +74,36 @@ function Rail({ leg: l }: { leg: Leg }) {
       </span>
       <div className={`min-w-0 flex-1 text-sm ${walk ? "py-1.5" : "py-2.5"}`}>
         {walk ? (
-          <span className="text-xs text-zinc-500">
-            {modeIcon.walk} Walk {roundM(l.meters)} · {Math.max(1, dur)} min
+          <span className="inline-flex items-center gap-1.5 text-xs text-muted">
+            <ModeIcon mode="walk" className="h-3.5 w-3.5" /> Walk {roundM(l.meters)}, {Math.max(1, dur)} min
           </span>
         ) : (
           <>
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-              <span className="rounded px-1.5 py-0.5 text-xs font-semibold text-white" style={{ background: color }}>
-                {modeIcon[l.mode] ?? "•"} {l.mode === "auto" ? "Auto" : l.label}
+              <span className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-bold" style={{ background: color, color: legTextColor(l) }}>
+                <ModeIcon mode={l.mode} className="h-3.5 w-3.5" /> {l.mode === "auto" ? "Auto" : l.label}
               </span>
-              {l.tags?.includes("ac") && <span className="text-xs font-medium text-sky-600">AC</span>}
-              {l.live && <span className="text-xs text-emerald-600">● live</span>}
-              <span className="text-xs text-zinc-500">
-                {dur} min{l.meters ? ` · ${roundM(l.meters)}` : ""}
-                {fareText(l) ? ` · ${fareText(l)}` : ""}
+              {l.tags?.includes("ac") && <span className="text-xs font-bold text-[#1f6fb2] dark:text-sky-400">AC</span>}
+              {l.live && (
+                <span className="inline-flex items-center gap-1 text-xs text-good">
+                  <span className="h-1.5 w-1.5 rounded-full bg-current" /> live
+                </span>
+              )}
+              <span className="tnum text-xs text-muted">
+                {[`${dur} min`, l.meters && roundM(l.meters), fareText(l)].filter(Boolean).join(", ")}
               </span>
             </div>
-            <div className="mt-0.5 text-xs text-zinc-600 dark:text-zinc-400">
-              {l.from} → {l.to}
-              {l.detail && <span className="text-zinc-500"> · {l.detail}</span>}
+            <div className="mt-1 text-xs text-muted">
+              {l.from} to {l.to}
             </div>
+            {l.detail && <div className="text-xs text-faint">{l.detail}</div>}
             {l.mode === "auto" && l.meters !== undefined && l.meters < 1000 && (
-              <div className="mt-1 inline-flex items-center gap-1 rounded-md bg-emerald-50 px-1.5 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300">
-                {modeIcon.walk} Under 1 km — walking is ~{Math.round(walkMinutes(l.meters))} min and free
+              <div className="mt-1.5 inline-flex items-center gap-1.5 rounded-md bg-good-soft px-2 py-0.5 text-xs text-good">
+                <ModeIcon mode="walk" className="h-3.5 w-3.5" /> Under 1 km: walking takes ~{Math.round(walkMinutes(l.meters))} min and costs nothing
               </div>
             )}
             {l.adjusted && (
-              <div className="mt-0.5 text-xs text-amber-600">
+              <div className="mt-1 text-xs text-warn">
                 +{mins(l.adjusted.deltaMs)} min for {l.adjusted.reason} ({l.mode === "bus" ? "BMTC says" : "estimate was"} {dur - mins(l.adjusted.deltaMs)} min)
               </div>
             )}

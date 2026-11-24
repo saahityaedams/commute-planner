@@ -42,7 +42,7 @@ app/config/places.server.ts   your places (Nodes grouped into named spots)
 app/app.server.ts             composition root: providers, places, rules, preferences, bus traffic floor
 app/components/  Timeline (steps), RouteMap (Leaflet + OSM), Header
 workers/         Worker entry + GoogleRoutesState Durable Object (monthly call cap + 7-day result cache)
-app/routes/      / (planner) · /metro (next trains) · /places (find stop ids) · /about (nuances) · /api/stops
+app/routes/      / (planner) · /places (find stop ids) · /about (nuances) · /api/stops
 ```
 
 **Adding a mode** (e.g. Namma Yatri): write a `Provider` in `app/providers/`, add it to `app/app.server.ts`. Every plan then considers it,

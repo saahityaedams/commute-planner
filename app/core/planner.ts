@@ -12,6 +12,12 @@ export interface PlanOptions {
   /** Max provider segments chained (1 = single provider, 2 = one switch, …). Feeder segments don't count. */
   maxSegments?: number;
   /**
+   * Segments beyond the second must start within this straight-line distance of the destination:
+   * a third segment is a short last hop (e.g. metro, then a bus to the door), never a detour.
+   * Keeps the fan-out of long chains small. Default: no limit.
+   */
+  extraSegmentRadiusM?: number;
+  /**
    * First/last-mile providers (e.g. autos): used only as the first and/or last segment, never on their own,
    * and only for hops up to `feederRadiusM` (straight line). They don't count toward `maxSegments`.
    * With feederEnds "off-network" (default) they only bridge an end the core network doesn't reach
@@ -85,8 +91,10 @@ export async function plan(from: Place, to: Place, departAt: number, opts: PlanO
 
   const modesOf = (pl: Place) => new Set(pl.nodes.map((n) => n.mode));
   const nodesFor = (pl: Place, mode: string) => pl.nodes.filter((n) => n.mode === mode);
-  const near = (a: Place, b: Place) =>
-    a.nodes.some((x) => b.nodes.some((y) => distanceM(x.lat, x.lon, y.lat, y.lon) <= radius));
+  const within = (a: Place, b: Place, r: number) =>
+    a.nodes.some((x) => b.nodes.some((y) => distanceM(x.lat, x.lon, y.lat, y.lon) <= r));
+  const near = (a: Place, b: Place) => within(a, b, radius);
+  const extraRadius = opts.extraSegmentRadiusM ?? Infinity;
 
   async function expand(s: State): Promise<Itinerary[]> {
     const out: Promise<Itinerary[]>[] = [];
@@ -97,6 +105,7 @@ export async function plan(from: Place, to: Place, departAt: number, opts: PlanO
       const feeder = isFeeder(p);
       if (feeder && (s.lastWasFeeder || !((atStart && firstMileOk) || (!atStart && s.used > 0 && lastMileOk)))) continue;
       if (!feeder && s.used >= maxSegments) continue;
+      if (!feeder && s.used >= 2 && !within(s.place, to, extraRadius)) continue;
       const starts = nodesFor(s.place, p.mode);
       if (!starts.length) continue;
       const used = s.used + (feeder ? 0 : 1);
@@ -121,7 +130,7 @@ export async function plan(from: Place, to: Place, departAt: number, opts: PlanO
           const m = modesOf(x);
           if (!m.has(p.mode)) continue;
           const others = [...m].filter((mode) => mode !== p.mode);
-          const onward = used < maxSegments && others.some((mode) => coreModes.has(mode));
+          const onward = used < maxSegments && (used < 2 || within(x, to, extraRadius)) && others.some((mode) => coreModes.has(mode));
           const lastMile = lastMileOk && others.some((mode) => feederModes.has(mode)) && near(x, to);
           if (onward || lastMile) targets.push(x);
         }

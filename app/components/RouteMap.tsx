@@ -24,7 +24,9 @@ export function RouteMap({ it }: { it: Itinerary }) {
       for (const l of it.legs) {
         if (!l.path || l.path.length < 2) continue;
         const walk = l.mode === "walk";
-        L.polyline(l.path, { color: legColor(l), weight: walk ? 3 : 5, opacity: walk ? 0.9 : 0.85, dashArray: walk ? "2 6" : undefined })
+        // A pale casing under each ride keeps light lines (Yellow metro) readable on the green tiles.
+        if (!walk) L.polyline(l.path, { color: dark ? "#161b24" : "#ffffff", weight: 9, opacity: 0.9, interactive: false }).addTo(map);
+        L.polyline(l.path, { color: legColor(l), weight: walk ? 3 : 5, opacity: walk ? 0.9 : 1, dashArray: walk ? "2 6" : undefined })
           .bindTooltip(`${l.label} · ${l.from} → ${l.to}`)
           .addTo(map);
         l.path.forEach((p) => bounds.extend(p));
@@ -34,7 +36,7 @@ export function RouteMap({ it }: { it: Itinerary }) {
         if (!l.path?.length) return;
         const ends = i === it.legs.length - 1 ? [l.path[0], l.path[l.path.length - 1]] : [l.path[0]];
         for (const p of ends)
-          L.circleMarker(p, { radius: 5, color: dark ? "#fafafa" : "#18181b", weight: 2, fillColor: dark ? "#18181b" : "#fff", fillOpacity: 1 }).addTo(map!);
+          L.circleMarker(p, { radius: 5, color: dark ? "#e9ebe5" : "#1f2633", weight: 2, fillColor: dark ? "#1d2330" : "#fff", fillOpacity: 1 }).addTo(map!);
       });
       if (bounds.isValid()) {
         map.invalidateSize();
@@ -47,5 +49,5 @@ export function RouteMap({ it }: { it: Itinerary }) {
     };
   }, [it]);
 
-  return <div ref={el} className="mt-3 h-64 w-full overflow-hidden rounded-xl bg-zinc-200 sm:h-80 dark:bg-zinc-800" />;
+  return <div ref={el} className="mt-4 h-64 w-full overflow-hidden rounded-xl border border-rule bg-sunk sm:h-80" />;
 }
