@@ -5,11 +5,11 @@ export function legColor(l: Pick<Leg, "mode" | "color" | "tags">): string {
   if (l.color) return l.color;
   switch (l.mode) {
     case "walk":
-      return "#9aa0a8";
+      return "#8fa096";
     case "bus":
-      return l.tags?.includes("ac") ? "#1f6fb2" : "#4b5563";
+      return l.tags?.includes("ac") ? "#1f6fb2" : "#a8432b";
     case "auto":
-      return "#2f8a4c";
+      return "#6b7a1f";
     default:
       return "#7a3f8c";
   }

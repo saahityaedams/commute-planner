@@ -64,8 +64,8 @@ export default function About({ loaderData }: Route.ComponentProps) {
           Later legs shift to match. Shown in amber as "+N min traffic".
         </li>
         <li>
-          <b>Short hops on any bus are fine; longer rides should be AC</b>: Vajra (V-500CA, V-285M…), Vayu Vajra (KIA-…), and the routes
-          listed in <code>app/config/buses.server.ts</code> (like 500-A). This is a preference, not a ban: a long non-AC ride counts as 1.5×
+          <b>Short hops on any bus are fine; longer rides should be AC</b>: Vajra (V-500CA, V-MF1C…), Vayu Vajra (KIA-…) or express Vajra
+          (O EXP V-…). Watch the prefix: 500-A is the ordinary bus and V-500A the Vajra on the same road. This is a preference, not a ban: a long non-AC ride counts as 1.5×
           its minutes beyond 20 when ranking "Recommended", but still shows up.
         </li>
         <li>

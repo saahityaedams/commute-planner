@@ -6,9 +6,9 @@ import type { Stop } from "~/lib/stops";
 const SHOW_WALK_OVER_M = 150;
 /**
  * BMTC doesn't flag AC per leg (serviceTypeId is always 0); Vajra ("V-500CA", "V-285M"…) and Vayu Vajra
- * airport ("KIA-8"…) routes are the AC fleet, plus any route listed in `acRoutes`.
+ * airport ("KIA-8"…) and express Vajra ("O EXP V-213VJ") routes are the AC fleet, plus any route in `acRoutes`.
  */
-const AC_PREFIX = /^(V-|KIA-)/i;
+const AC_PREFIX = /^(V-|KIA-|OEXPV-)/; // tested on the normalised (upper-case, no spaces) route
 const norm = (r: string) => r.toUpperCase().replace(/\s+/g, "");
 
 export const busNode = (s: Stop): Node => ({ mode: "bus", ref: String(s.id), name: s.name, lat: s.lat, lon: s.lon });
@@ -24,7 +24,7 @@ const WINDOW_MS = 10 * 60_000;
 export const createBmtcProvider = ({ acRoutes = [] }: { acRoutes?: string[] } = {}): Provider => {
   const gate = createGate();
   const acList = new Set(acRoutes.map(norm));
-  const isAc = (route: string) => AC_PREFIX.test(route) || acList.has(norm(route));
+  const isAc = (route: string) => AC_PREFIX.test(norm(route)) || acList.has(norm(route));
   const windows = new Map<string, ReturnType<typeof planBus>>();
   return {
     id: "bmtc",

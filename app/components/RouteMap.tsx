@@ -25,7 +25,7 @@ export function RouteMap({ it }: { it: Itinerary }) {
         if (!l.path || l.path.length < 2) continue;
         const walk = l.mode === "walk";
         // A pale casing under each ride keeps light lines (Yellow metro) readable on the green tiles.
-        if (!walk) L.polyline(l.path, { color: dark ? "#161b24" : "#ffffff", weight: 9, opacity: 0.9, interactive: false }).addTo(map);
+        if (!walk) L.polyline(l.path, { color: dark ? "#0e1d17" : "#ffffff", weight: 9, opacity: 0.9, interactive: false }).addTo(map);
         L.polyline(l.path, { color: legColor(l), weight: walk ? 3 : 5, opacity: walk ? 0.9 : 1, dashArray: walk ? "2 6" : undefined })
           .bindTooltip(`${l.label} · ${l.from} → ${l.to}`)
           .addTo(map);
@@ -36,7 +36,7 @@ export function RouteMap({ it }: { it: Itinerary }) {
         if (!l.path?.length) return;
         const ends = i === it.legs.length - 1 ? [l.path[0], l.path[l.path.length - 1]] : [l.path[0]];
         for (const p of ends)
-          L.circleMarker(p, { radius: 5, color: dark ? "#e9ebe5" : "#1f2633", weight: 2, fillColor: dark ? "#1d2330" : "#fff", fillOpacity: 1 }).addTo(map!);
+          L.circleMarker(p, { radius: 5, color: dark ? "#e4ede3" : "#173a2e", weight: 2, fillColor: dark ? "#15281f" : "#fff", fillOpacity: 1 }).addTo(map!);
       });
       if (bounds.isValid()) {
         map.invalidateSize();

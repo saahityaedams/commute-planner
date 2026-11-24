@@ -12,6 +12,8 @@
   --color-muted: var(--muted);
   --color-faint: var(--faint);
   --color-rule: var(--rule);
+  --color-band: var(--band);
+  --color-on-band: var(--on-band);
   --color-marigold: var(--marigold);
   --color-marigold-soft: var(--marigold-soft);
   --color-warn: var(--warn);
@@ -21,37 +23,42 @@
 }
 
 :root {
-  --paper: #f2f3ee;
-  --surface: #ffffff;
-  --sunk: #f7f8f4;
-  --ink: #1f2633;
-  --muted: #6a7180;
-  --faint: #a3a8b0;
-  --rule: #dcdfd6;
-  --marigold: #d9960f;
-  --marigold-soft: #fbefd2;
-  --warn: #b45309;
-  --warn-soft: #fdf3e2;
+  /* "Cubbon Park": bottle-green ink on sage mist, marigold for what matters. */
+  --paper: #eaf0e6;
+  --surface: #fbfcf7;
+  --sunk: #f1f5ec;
+  --ink: #173a2e;
+  --muted: #5a6f65;
+  --faint: #98a99f;
+  --rule: #cfdbcb;
+  --band: #173a2e;
+  --on-band: #eaf0e6;
+  --marigold: #e9a100;
+  --marigold-soft: #fbebc2;
+  --warn: #b4501a;
+  --warn-soft: #fbebdd;
   --good: #2f7d4a;
-  --good-soft: #e5f2e8;
+  --good-soft: #e1f0e3;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
-    --paper: #161b24;
-    --surface: #1d2330;
-    --sunk: #19202b;
-    --ink: #e9ebe5;
-    --muted: #9aa1ad;
-    --faint: #5f6775;
-    --rule: #2c3443;
-    --marigold: #f0b43a;
-    --marigold-soft: #3a2e14;
+    --paper: #0e1d17;
+    --surface: #15281f;
+    --sunk: #112219;
+    --ink: #e4ede3;
+    --muted: #93a89b;
+    --faint: #50665a;
+    --rule: #24392d;
+    --band: #0a1611;
+    --on-band: #e4ede3;
+    --marigold: #f2b53a;
+    --marigold-soft: #3a2e10;
     --warn: #f0a24a;
-    --warn-soft: #33261a;
+    --warn-soft: #33241a;
     --good: #6cc68a;
-    --good-soft: #1b2e23;
+    --good-soft: #17301f;
   }
 }
 
