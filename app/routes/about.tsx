@@ -56,9 +56,6 @@ export default function About({ loaderData }: Route.ComponentProps) {
       <H>My nuances</H>
       <ul className="space-y-3 [&>li]:relative [&>li]:pl-5 [&>li]:before:absolute [&>li]:before:left-0 [&>li]:before:top-[0.7em] [&>li]:before:h-1.5 [&>li]:before:w-1.5 [&>li]:before:rounded-full [&>li]:before:bg-marigold [&_b]:text-ink">
         <li>
-          <b>I'm a public-transport commuter.</b> Bus and metro do the work; everything else is getting to and from them.
-        </li>
-        <li>
           <b>I don't trust BMTC's times.</b> Its planner uses timetables with no traffic (it says 45 min for 28 km from Silk Board to Hebbal at
           6 pm). So each bus leg takes at least Google's traffic-aware driving time for that stretch, scaled to the bus route's length, × {busVsCar}.
           Later legs shift to match. Shown in amber as "+N min traffic".
