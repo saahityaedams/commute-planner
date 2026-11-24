@@ -12,7 +12,9 @@ import type { Route } from "./+types/root";
 import "./app.css";
 
 export const links: Route.LinksFunction = () => [
-  { rel: "manifest", href: "/manifest.webmanifest" },
+  // use-credentials: browsers fetch manifests without cookies by default, and Cloudflare Access would
+  // bounce that request to its login page, making the app uninstallable.
+  { rel: "manifest", href: "/manifest.webmanifest", crossOrigin: "use-credentials" },
   { rel: "icon", href: "/icon.svg", type: "image/svg+xml" },
   { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
