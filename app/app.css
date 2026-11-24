@@ -1,0 +1,29 @@
+@import "tailwindcss" source(".");
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
+    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+html,
+body {
+  @apply bg-stone-50 text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100;
+  font-feature-settings: "cv11", "ss01";
+  -webkit-tap-highlight-color: transparent;
+
+  @media (prefers-color-scheme: dark) {
+    color-scheme: dark;
+  }
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Muted OSM tiles so route colours stand out; inverted for dark mode. */
+.map-tiles {
+  filter: grayscale(0.85) contrast(0.9) brightness(1.05);
+}
+.map-tiles-dark {
+  filter: invert(1) hue-rotate(180deg) grayscale(0.85) brightness(0.85) contrast(0.9);
+}

@@ -1,0 +1,3 @@
+# Google Maps Routes API key (Routes API enabled). Copy to .dev.vars for local dev;
+# in prod: npx wrangler secret put GOOGLE_MAPS_API_KEY
+GOOGLE_MAPS_API_KEY=
