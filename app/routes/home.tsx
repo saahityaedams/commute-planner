@@ -81,15 +81,15 @@ function PlanForm({ places, from: from0, to: to0, t }: { places: PlaceOpt[]; fro
         </button>
       </div>
       <div className="mt-1.5 flex items-center gap-2 rounded-xl bg-sunk px-3 py-2">
-        <label className="flex items-center gap-2 text-sm text-muted">
+        <label className="flex min-w-0 items-center gap-2 whitespace-nowrap text-sm text-muted">
           Leave at
-          <input type="time" name="t" defaultValue={t} className="tnum bg-transparent font-bold text-ink outline-none" aria-label="Leave at (blank means now)" />
-          {!t && <span className="text-faint">or now</span>}
+          <input type="time" name="t" defaultValue={t} className="tnum w-[5.5rem] min-w-0 appearance-none bg-transparent font-bold text-ink outline-none [&::-webkit-date-and-time-value]:text-left" aria-label="Leave at (blank means now)" />
+          {!t && <span className="truncate text-faint">or now</span>}
         </label>
         <button
           type="submit"
           disabled={busy || !from || !to}
-          className="ml-auto inline-flex h-10 items-center gap-2 rounded-[10px] bg-ink px-5 text-[15px] font-bold text-paper transition active:scale-[0.98] disabled:opacity-35"
+          className="ml-auto inline-flex h-10 shrink-0 items-center whitespace-nowrap gap-2 rounded-[10px] bg-ink px-5 text-[15px] font-bold text-paper transition active:scale-[0.98] disabled:opacity-35"
         >
           {busy && <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-r-transparent" />}
           {busy ? "Finding routes" : "Find routes"}
